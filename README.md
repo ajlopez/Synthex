@@ -12,4 +12,8 @@ DeFi application (proof of concept) like Synthetix (WIP).
 - [Synthetic Assets in DeFi: Use Cases & Opportunities](https://medium.com/bollinger-investment-group/synthetic-assets-in-defi-use-cases-opportunities-19b11f57a776)
 - [Synthetix for dummies](https://medium.com/@TwiceCrypto/synthetix-for-dummies-477a0760d335)
 - [How to make money on Synthetix](https://bankless.substack.com/p/how-to-make-money-on-synthetix)
+- [Ether Collateral in Synthetix](https://github.com/Synthetixio/synthetix/issues/232)
+- [Synthetix: How to Trade](https://synthetix.community/docs/how-to-trade)
+
+
 
