@@ -14,6 +14,8 @@ DeFi application (proof of concept) like Synthetix (WIP).
 - [How to make money on Synthetix](https://bankless.substack.com/p/how-to-make-money-on-synthetix)
 - [Ether Collateral in Synthetix](https://github.com/Synthetixio/synthetix/issues/232)
 - [Synthetix: How to Trade](https://synthetix.community/docs/how-to-trade)
+- [sBTC Token in Ethereum Mainnet network](https://bloxy.info/address/0x9073ee83b6ce96c444547ddcaf777b9352163581)
 
+ 
 
 
