@@ -29,6 +29,18 @@ contract('Synthex', function (accounts) {
         assert.equal(result, synth.address);
     });
     
+    it('cannot add synth twice', async function () {
+        const synthex = await Synthex.new();
+        const synth = await Synth.new('SYM1', 'Name', Buffer.from('TOK1'));
+
+        await synthex.addSynth(synth.address);
+        expectThrow(synthex.addSynth(synth.address));
+        
+        const result = await synthex.synths(await synth.key());
+        
+        assert.equal(result, synth.address);
+    });
+    
     it('only owner can add synth', async function () {
         const synthex = await Synthex.new();
         const synth = await Synth.new('SYM1', 'Name', Buffer.from('TOK1'));

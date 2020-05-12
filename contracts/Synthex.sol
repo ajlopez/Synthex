@@ -19,6 +19,8 @@ contract Synthex {
     function addSynth(Synth synth) public onlyOwner {
         bytes32 key = synth.key();
         
+        require(synths[key] == Synth(0), "Synth already exists");
+        
         synths[key] = synth;
     }
 }
