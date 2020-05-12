@@ -13,4 +13,8 @@ contract Synth is ERC20 {
         name = _name;
         key = _key;
     }
+    
+    function issue(address account, uint amount) public {
+        _mint(account, amount);
+    }
 }
