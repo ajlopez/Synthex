@@ -62,4 +62,24 @@ contract('Synth', function (accounts) {
         
         assert.equal(result, 0);
     });
+    
+    it('burn synth', async function () {
+        await this.synth.setSynthex(charlie);
+        await this.synth.issue(bob, 1000, { from: charlie });
+        await this.synth.burn(bob, 600, { from: charlie });
+        
+        const result = await this.synth.balanceOf(bob);
+        
+        assert.equal(result, 400);
+    });
+    
+    it('only synthex can burn synth', async function () {
+        await this.synth.setSynthex(charlie);
+        await this.synth.issue(bob, 1000, { from: charlie });
+        expectThrow(this.synth.burn(bob, 600, { from: bob }));
+        
+        const result = await this.synth.balanceOf(bob);
+        
+        assert.equal(result, 1000);
+    });
 });

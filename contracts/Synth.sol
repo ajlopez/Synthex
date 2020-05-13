@@ -36,4 +36,8 @@ contract Synth is ERC20 {
     function issue(address account, uint amount) public onlySynthex {
         _mint(account, amount);
     }
+    
+    function burn(address account, uint amount) public onlySynthex {
+        _burn(account, amount);
+    }
 }
