@@ -69,6 +69,24 @@ contract('Synthex', function (accounts) {
             
             assert.equal(balance, 1000);
         });
+
+        it('burn synths', async function () {
+            await this.synthex.issueSynths(1000, { from: bob });
+            await this.synthex.burnSynths(600, { from: bob });
+            
+            const balance = await this.susd.balanceOf(bob);
+            
+            assert.equal(balance, 400);
+        });
+        
+        it('cannot burn too much synths', async function () {
+            await this.synthex.issueSynths(1000, { from: bob });
+            expectThrow(this.synthex.burnSynths(1600, { from: bob }));
+            
+            const balance = await this.susd.balanceOf(bob);
+            
+            assert.equal(balance, 1000);
+        });
     });
 });
 

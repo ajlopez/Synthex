@@ -29,5 +29,9 @@ contract Synthex {
     function issueSynths(uint amount) public {
         synths[sUSD].issue(msg.sender, amount);
     }
+    
+    function burnSynths(uint amount) public {
+        synths[sUSD].burn(msg.sender, amount);
+    }
 }
 
