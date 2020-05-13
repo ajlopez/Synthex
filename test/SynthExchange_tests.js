@@ -1,5 +1,7 @@
 
 const SynthExchange = artifacts.require('SynthExchange');
+const Synthex = artifacts.require('Synthex');
+const Synth = artifacts.require('Synth');
 
 const expectThrow = require('./utils').expectThrow;
 
@@ -7,6 +9,8 @@ contract('SynthExchange', function (accounts) {
     const alice = accounts[0];
     const bob = accounts[1];
     const charlie = accounts[2];
+    
+    const MANTISSA = 1e6;
     
     describe('SynthExchange', function () {
         beforeEach(async function () {
@@ -35,4 +39,50 @@ contract('SynthExchange', function (accounts) {
             assert.equal(synthex, 0);
         });
     });
+
+    describe('SynthExchange with Synthex and Synths', function () {
+        beforeEach(async function () {
+            this.synthexchange = await SynthExchange.new();
+            this.synthex = await Synthex.new();
+            await this.synthexchange.setSynthex(this.synthex.address);
+            this.susd = await Synth.new('sUSD', 'Synth USD', Buffer.from('sUSD'));
+            await this.synthex.addSynth(this.susd.address);
+            await this.susd.setSynthex(this.synthex.address);
+            this.sbtc = await Synth.new('sBTC', 'Synth BTC', Buffer.from('sBTC'));
+            await this.synthex.addSynth(this.sbtc.address);
+            await this.sbtc.setSynthex(this.synthex.address);
+            this.sfoo = await Synth.new('sFOO', 'Synth FOO', Buffer.from('sFOO'));
+        });
+
+        it('get sUSD price', async function () {
+            const price = await this.synthexchange.prices(await this.susd.key());
+            
+            assert.equal(price, MANTISSA);
+        });
+        
+        it('set sBTC price', async function () {
+            await this.synthexchange.setPrice(await this.sbtc.key(), 10000 * MANTISSA);
+            
+            const price = await this.synthexchange.prices(await this.sbtc.key());
+            
+            assert.equal(price, 10000 * MANTISSA);
+        });
+        
+        it('only owner can set sBTC price', async function () {
+            expectThrow(this.synthexchange.setPrice(await this.sbtc.key(), 10000 * MANTISSA, { from: bob }));
+            
+            const price = await this.synthexchange.prices(await this.sbtc.key());
+            
+            assert.equal(price, 0);
+        });
+        
+        it('only associated synth have price', async function () {
+            expectThrow(this.synthexchange.setPrice(await this.sfoo.key(), 10000 * MANTISSA));
+            
+            const price = await this.synthexchange.prices(await this.sfoo.key());
+            
+            assert.equal(price, 0);
+        });
+    });
 });
+
