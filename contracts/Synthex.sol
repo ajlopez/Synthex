@@ -6,6 +6,8 @@ contract Synthex {
     address public owner;
     
     mapping (bytes32 => Synth) public synths;
+
+    bytes32 private constant sUSD = "sUSD";
     
     constructor() public {
         owner = msg.sender;
@@ -22,6 +24,10 @@ contract Synthex {
         require(synths[key] == Synth(0), "Synth already exists");
         
         synths[key] = synth;
+    }
+    
+    function issueSynths(uint amount) public {
+        synths[sUSD].issue(msg.sender, amount);
     }
 }
 
