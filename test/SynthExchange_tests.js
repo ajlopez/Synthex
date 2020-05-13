@@ -48,9 +48,11 @@ contract('SynthExchange', function (accounts) {
             this.susd = await Synth.new('sUSD', 'Synth USD', Buffer.from('sUSD'));
             await this.synthex.addSynth(this.susd.address);
             await this.susd.setSynthex(this.synthex.address);
+            await this.susd.setSynthExchange(this.synthexchange.address);
             this.sbtc = await Synth.new('sBTC', 'Synth BTC', Buffer.from('sBTC'));
             await this.synthex.addSynth(this.sbtc.address);
             await this.sbtc.setSynthex(this.synthex.address);
+            await this.sbtc.setSynthExchange(this.synthexchange.address);
             this.sfoo = await Synth.new('sFOO', 'Synth FOO', Buffer.from('sFOO'));
         });
 
@@ -82,6 +84,96 @@ contract('SynthExchange', function (accounts) {
             const price = await this.synthexchange.prices(await this.sfoo.key());
             
             assert.equal(price, 0);
+        });
+        
+        it('exchange synths with prices', async function () {
+            await this.synthex.issueSynths(20000, { from: bob });
+            
+            const balance1 = await this.susd.balanceOf(bob);
+            
+            assert.equal(balance1, 20000);
+            
+            await this.synthexchange.setPrice(await this.sbtc.key(), 10000 * MANTISSA);
+            
+            const price = await this.synthexchange.prices(await this.sbtc.key());
+            
+            assert.equal(price, 10000 * MANTISSA);
+            
+            await this.synthexchange.exchange(await this.susd.key(), 20000, await this.sbtc.key(), { from: bob });
+
+            const balance2 = await this.susd.balanceOf(bob);
+            
+            assert.equal(balance2, 0);
+
+            const balance3 = await this.sbtc.balanceOf(bob);
+            
+            assert.equal(balance3, 2);
+        });
+        
+        it('cannot exchange synths without prices', async function () {
+            await this.synthex.issueSynths(20000, { from: bob });
+            
+            const balance1 = await this.susd.balanceOf(bob);
+            
+            assert.equal(balance1, 20000);
+            
+            expectThrow(this.synthexchange.exchange(await this.susd.key(), 20000, await this.sbtc.key(), { from: bob }));
+
+            const balance2 = await this.susd.balanceOf(bob);
+            
+            assert.equal(balance2, 20000);
+
+            const balance3 = await this.sbtc.balanceOf(bob);
+            
+            assert.equal(balance3, 0);
+        });
+        
+        it('cannot exchange 0 synths', async function () {
+            await this.synthex.issueSynths(20000, { from: bob });
+            
+            const balance1 = await this.susd.balanceOf(bob);
+            
+            assert.equal(balance1, 20000);
+            
+            await this.synthexchange.setPrice(await this.sbtc.key(), 10000 * MANTISSA);
+            
+            const price = await this.synthexchange.prices(await this.sbtc.key());
+            
+            assert.equal(price, 10000 * MANTISSA);
+            
+            expectThrow(this.synthexchange.exchange(await this.susd.key(), 0, await this.sbtc.key(), { from: bob }));
+
+            const balance2 = await this.susd.balanceOf(bob);
+            
+            assert.equal(balance2, 20000);
+
+            const balance3 = await this.sbtc.balanceOf(bob);
+            
+            assert.equal(balance3, 0);
+        });
+        
+        it('cannot exchange too much synths', async function () {
+            await this.synthex.issueSynths(20000, { from: bob });
+            
+            const balance1 = await this.susd.balanceOf(bob);
+            
+            assert.equal(balance1, 20000);
+            
+            await this.synthexchange.setPrice(await this.sbtc.key(), 10000 * MANTISSA);
+            
+            const price = await this.synthexchange.prices(await this.sbtc.key());
+            
+            assert.equal(price, 10000 * MANTISSA);
+            
+            expectThrow(this.synthexchange.exchange(await this.susd.key(), 30000, await this.sbtc.key(), { from: bob }));
+
+            const balance2 = await this.susd.balanceOf(bob);
+            
+            assert.equal(balance2, 20000);
+
+            const balance3 = await this.sbtc.balanceOf(bob);
+            
+            assert.equal(balance3, 0);
         });
     });
 });

@@ -30,5 +30,16 @@ contract SynthExchange {
         
         prices[key] = price;
     }
+    
+    function exchange(bytes32 fromKey, uint amount, bytes32 toKey) public {
+        require(amount > 0);
+        require(prices[fromKey] > 0);
+        require(prices[toKey] > 0);
+        
+        uint amount2 = amount * prices[fromKey] / prices[toKey];
+        
+        synthex.synths(fromKey).burn(msg.sender, amount);
+        synthex.synths(toKey).issue(msg.sender, amount2);
+    }
 }
 
