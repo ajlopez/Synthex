@@ -10,6 +10,7 @@ contract Synth is ERC20 {
     bytes32 public key;
     
     address public synthex;
+    address public synthExchange;
     
     constructor(string memory _symbol, string memory _name, bytes32 _key) public {
         owner = msg.sender;
@@ -24,8 +25,8 @@ contract Synth is ERC20 {
         _;
     }
     
-    modifier onlySynthex {
-        require(msg.sender == synthex);
+    modifier onlySynthexOrSynthExchange {
+        require(msg.sender == synthex || msg.sender == synthExchange);
         _;
     }
 
@@ -33,11 +34,15 @@ contract Synth is ERC20 {
         synthex = _synthex;
     }
     
-    function issue(address account, uint amount) public onlySynthex {
+    function setSynthExchange(address _synthExchange) public onlyOwner {
+        synthExchange = _synthExchange;
+    }
+    
+    function issue(address account, uint amount) public onlySynthexOrSynthExchange {
         _mint(account, amount);
     }
     
-    function burn(address account, uint amount) public onlySynthex {
+    function burn(address account, uint amount) public onlySynthexOrSynthExchange {
         _burn(account, amount);
     }
 }

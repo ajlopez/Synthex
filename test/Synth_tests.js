@@ -30,6 +30,12 @@ contract('Synth', function (accounts) {
         assert.equal(synthex, 0);
     });
 
+    it('initial synth exchange', async function () {
+        const synthexchange = await this.synth.synthExchange();
+        
+        assert.equal(synthexchange, 0);
+    });
+    
     it('set synthex', async function () {
         await this.synth.setSynthex(bob);
         
@@ -46,7 +52,23 @@ contract('Synth', function (accounts) {
         assert.equal(synthex, 0);
     });
 
-    it('issue synth', async function () {
+    it('set synth exchange', async function () {
+        await this.synth.setSynthExchange(bob);
+        
+        const synthexchange = await this.synth.synthExchange();
+        
+        assert.equal(synthexchange, bob);
+    });
+
+    it('only owner can set synth exchange', async function () {
+        expectThrow(this.synth.setSynthExchange(bob, { from: charlie }));
+        
+        const synthexchange = await this.synth.synthExchange();
+        
+        assert.equal(synthexchange, 0);
+    });
+
+    it('issue synth using synthex', async function () {
         await this.synth.setSynthex(charlie);
         await this.synth.issue(bob, 1000, { from: charlie });
         
@@ -55,7 +77,16 @@ contract('Synth', function (accounts) {
         assert.equal(result, 1000);
     });
     
-    it('only synthex can issue synth', async function () {
+    it('issue synth using synth exchange', async function () {
+        await this.synth.setSynthExchange(charlie);
+        await this.synth.issue(bob, 1000, { from: charlie });
+        
+        const result = await this.synth.balanceOf(bob);
+        
+        assert.equal(result, 1000);
+    });
+    
+    it('only synthex or synth exchange can issue synth', async function () {
         expectThrow(this.synth.issue(bob, 1000, { from: bob }));
         
         const result = await this.synth.balanceOf(bob);
@@ -63,8 +94,18 @@ contract('Synth', function (accounts) {
         assert.equal(result, 0);
     });
     
-    it('burn synth', async function () {
+    it('burn synth using synthex', async function () {
         await this.synth.setSynthex(charlie);
+        await this.synth.issue(bob, 1000, { from: charlie });
+        await this.synth.burn(bob, 600, { from: charlie });
+        
+        const result = await this.synth.balanceOf(bob);
+        
+        assert.equal(result, 400);
+    });
+    
+    it('burn synth using synth exchange', async function () {
+        await this.synth.setSynthExchange(charlie);
         await this.synth.issue(bob, 1000, { from: charlie });
         await this.synth.burn(bob, 600, { from: charlie });
         
@@ -83,7 +124,7 @@ contract('Synth', function (accounts) {
         assert.equal(result, 1000);
     });
     
-    it('only synthex can burn synth', async function () {
+    it('only synthex or synth exchange can burn synth', async function () {
         await this.synth.setSynthex(charlie);
         await this.synth.issue(bob, 1000, { from: charlie });
         expectThrow(this.synth.burn(bob, 600, { from: bob }));
