@@ -8,10 +8,30 @@ contract('Synthex', function (accounts) {
     const alice = accounts[0];
     const bob = accounts[1];
     const charlie = accounts[2];
+    
+    const INITIAL_SUPPLY = 10000000;
 
     describe('Synthex', function () {
         beforeEach(async function () {
-            this.synthex = await Synthex.new();
+            this.synthex = await Synthex.new(INITIAL_SUPPLY);
+        });
+        
+        it('token properties', async function () {
+            const totalSupply = await this.synthex.totalSupply();
+            const decimals = await this.synthex.decimals();
+            const symbol = await this.synthex.symbol();
+            const name = await this.synthex.name();
+            
+            assert.equal(totalSupply, INITIAL_SUPPLY);
+            assert.equal(decimals, 18);
+            assert.equal(symbol, "SYX");
+            assert.equal(name, "Synthex Token");
+            
+            const owner = await this.synthex.owner();
+            const ownerBalance = await this.synthex.balanceOf(owner);
+            
+            assert.equal(owner, alice);
+            assert.equal(ownerBalance, INITIAL_SUPPLY);
         });
         
         it('unknown synth', async function () {
@@ -56,7 +76,7 @@ contract('Synthex', function (accounts) {
     
     describe('Synthex with sUSD Synth', function () {
         beforeEach(async function () {
-            this.synthex = await Synthex.new();
+            this.synthex = await Synthex.new(INITIAL_SUPPLY);
             this.susd = await Synth.new('sUSD', 'Synth USD', Buffer.from('sUSD'));
             await this.synthex.addSynth(this.susd.address);
             await this.susd.setSynthex(this.synthex.address);

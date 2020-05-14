@@ -11,6 +11,7 @@ contract('SynthExchange', function (accounts) {
     const charlie = accounts[2];
     
     const MANTISSA = 1e6;
+    const INITIAL_SUPPLY = 10000000;
     
     describe('SynthExchange', function () {
         beforeEach(async function () {
@@ -43,7 +44,7 @@ contract('SynthExchange', function (accounts) {
     describe('SynthExchange with Synthex and Synths', function () {
         beforeEach(async function () {
             this.synthexchange = await SynthExchange.new();
-            this.synthex = await Synthex.new();
+            this.synthex = await Synthex.new(INITIAL_SUPPLY);
             await this.synthexchange.setSynthex(this.synthex.address);
             this.susd = await Synth.new('sUSD', 'Synth USD', Buffer.from('sUSD'));
             await this.synthex.addSynth(this.susd.address);
