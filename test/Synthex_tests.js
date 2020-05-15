@@ -29,9 +29,11 @@ contract('Synthex', function (accounts) {
             
             const owner = await this.synthex.owner();
             const ownerBalance = await this.synthex.balanceOf(owner);
+            const totalDebt = await this.synthex.totalDebt();
             
             assert.equal(owner, alice);
             assert.equal(ownerBalance, INITIAL_SUPPLY);
+            assert.equal(totalDebt, 0);
         });
         
         it('unknown synth', async function () {
@@ -85,27 +87,45 @@ contract('Synthex', function (accounts) {
         it('issue synths', async function () {
             await this.synthex.issueSynths(1000, { from: bob });
             
-            const balance = await this.susd.balanceOf(bob);
-            
+            const balance = await this.susd.balanceOf(bob);            
             assert.equal(balance, 1000);
+            
+            const totalDebt = await this.synthex.totalDebt();
+            assert.equal(totalDebt, 1000);
+        });
+
+        it('issue synths twice', async function () {
+            await this.synthex.issueSynths(1000, { from: bob });
+            await this.synthex.issueSynths(500, { from: charlie });
+            
+            const bobBalance = await this.susd.balanceOf(bob);            
+            const charlieBalance = await this.susd.balanceOf(charlie);            
+            assert.equal(charlieBalance, 500);
+            
+            const totalDebt = await this.synthex.totalDebt();
+            assert.equal(totalDebt, 1500);
         });
 
         it('burn synths', async function () {
             await this.synthex.issueSynths(1000, { from: bob });
             await this.synthex.burnSynths(600, { from: bob });
             
-            const balance = await this.susd.balanceOf(bob);
-            
+            const balance = await this.susd.balanceOf(bob);            
             assert.equal(balance, 400);
+            
+            const totalDebt = await this.synthex.totalDebt();
+            assert.equal(totalDebt, 400);
         });
         
         it('cannot burn too much synths', async function () {
             await this.synthex.issueSynths(1000, { from: bob });
             expectThrow(this.synthex.burnSynths(1600, { from: bob }));
             
-            const balance = await this.susd.balanceOf(bob);
-            
+            const balance = await this.susd.balanceOf(bob);            
             assert.equal(balance, 1000);
+            
+            const totalDebt = await this.synthex.totalDebt();
+            assert.equal(totalDebt, 1000);
         });
     });
 });

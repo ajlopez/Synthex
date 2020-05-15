@@ -10,6 +10,8 @@ contract Synthex is ERC20 {
     uint8 public constant decimals = 18;
     
     mapping (bytes32 => Synth) public synths;
+    
+    uint public totalDebt;
 
     bytes32 private constant sUSD = "sUSD";
     
@@ -33,10 +35,12 @@ contract Synthex is ERC20 {
     
     function issueSynths(uint amount) public {
         synths[sUSD].issue(msg.sender, amount);
+        totalDebt += amount;
     }
     
     function burnSynths(uint amount) public {
         synths[sUSD].burn(msg.sender, amount);
+        totalDebt -= amount;
     }
 }
 
