@@ -2,8 +2,9 @@ pragma solidity >=0.5.0 <0.6.0;
 
 import './Synth.sol';
 
-contract Synthex is ERC20 {
+contract Synthex {
     address public owner;
+    ERC20 public token;
 
     string public constant name = "Synthex Token";
     string public constant symbol = "SYX";
@@ -15,9 +16,9 @@ contract Synthex is ERC20 {
 
     bytes32 private constant sUSD = "sUSD";
     
-    constructor(uint initialSupply) public {
+    constructor(ERC20 _token) public {
         owner = msg.sender;
-        _mint(msg.sender, initialSupply);
+        token = _token;
     }
     
     modifier onlyOwner() {

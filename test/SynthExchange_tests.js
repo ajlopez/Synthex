@@ -44,7 +44,7 @@ contract('SynthExchange', function (accounts) {
     describe('SynthExchange with Synthex and Synths', function () {
         beforeEach(async function () {
             this.synthexchange = await SynthExchange.new();
-            this.synthex = await Synthex.new(INITIAL_SUPPLY);
+            this.synthex = await Synthex.new(charlie);
             await this.synthexchange.setSynthex(this.synthex.address);
             this.susd = await Synth.new('sUSD', 'Synth USD', Buffer.from('sUSD'));
             await this.synthex.addSynth(this.susd.address);
