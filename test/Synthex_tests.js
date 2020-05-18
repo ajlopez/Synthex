@@ -10,6 +10,7 @@ contract('Synthex', function (accounts) {
     const charlie = accounts[2];
     
     const INITIAL_SUPPLY = 10000000;
+    const UNIT = 1000000;
 
     describe('Synthex', function () {
         beforeEach(async function () {
@@ -20,10 +21,12 @@ contract('Synthex', function (accounts) {
             const owner = await this.synthex.owner();
             const token = await this.synthex.token();
             const totalDebt = await this.synthex.totalDebt();
+            const unit = await this.synthex.UNIT();
             
             assert.equal(owner, alice);
             assert.equal(token, charlie);
             assert.equal(totalDebt, 0);
+            assert.equal(unit, UNIT);
         });
         
         it('unknown synth', async function () {
@@ -82,6 +85,9 @@ contract('Synthex', function (accounts) {
             
             const totalDebt = await this.synthex.totalDebt();
             assert.equal(totalDebt, 1000);
+            
+            const debtLedger0 = await this.synthex.debtLedger(0);          
+            assert.equal(debtLedger0, UNIT);
         });
 
         it('issue synths twice', async function () {
@@ -94,6 +100,12 @@ contract('Synthex', function (accounts) {
             
             const totalDebt = await this.synthex.totalDebt();
             assert.equal(totalDebt, 1500);
+            
+            const debtLedger0 = await this.synthex.debtLedger(0);          
+            assert.equal(debtLedger0, UNIT);
+
+            const debtLedger1 = await this.synthex.debtLedger(1);
+            assert.equal(debtLedger1.toNumber(), 666667);
         });
 
         it('burn synths', async function () {

@@ -13,8 +13,12 @@ contract Synthex {
     mapping (bytes32 => Synth) public synths;
     
     uint public totalDebt;
+    
+    uint[] public debtLedger;
 
     bytes32 private constant sUSD = "sUSD";
+    
+    uint public constant UNIT = 1000000;
     
     constructor(ERC20 _token) public {
         owner = msg.sender;
@@ -36,7 +40,18 @@ contract Synthex {
     
     function issueSynths(uint amount) public {
         synths[sUSD].issue(msg.sender, amount);
-        totalDebt += amount;
+        
+        uint newTotalDebt = totalDebt + amount;
+        
+        uint debtPercentaje = amount * UNIT / newTotalDebt;
+        uint delta = UNIT - debtPercentaje;
+        
+        if (totalDebt == 0)
+            debtLedger.push(UNIT);
+        else
+            debtLedger.push(delta);
+        
+        totalDebt = newTotalDebt;
     }
     
     function burnSynths(uint amount) public {
