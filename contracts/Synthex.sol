@@ -16,6 +16,13 @@ contract Synthex {
     
     uint[] public debtLedger;
 
+    struct IssuanceData {
+        uint initialDebtOwnership;
+        uint debtEntryIndex;
+    }
+    
+    mapping(address => IssuanceData) public issuanceData;
+    
     bytes32 private constant sUSD = "sUSD";
     
     uint public constant UNIT = 1000000;
@@ -44,6 +51,10 @@ contract Synthex {
         uint newTotalDebt = totalDebt + amount;
         
         uint debtPercentaje = amount * UNIT / newTotalDebt;
+        
+        issuanceData[msg.sender].initialDebtOwnership = debtPercentaje;
+        issuanceData[msg.sender].debtEntryIndex = debtLedger.length;
+        
         uint delta = UNIT - debtPercentaje;
         
         if (totalDebt == 0)

@@ -88,6 +88,11 @@ contract('Synthex', function (accounts) {
             
             const debtLedger0 = await this.synthex.debtLedger(0);          
             assert.equal(debtLedger0, UNIT);
+            
+            const issuanceData = await this.synthex.issuanceData(bob);
+            
+            assert.equal(issuanceData.initialDebtOwnership, UNIT);
+            assert.equal(issuanceData.debtEntryIndex, 0);
         });
 
         it('issue synths twice', async function () {
@@ -106,6 +111,33 @@ contract('Synthex', function (accounts) {
 
             const debtLedger1 = await this.synthex.debtLedger(1);
             assert.equal(debtLedger1.toNumber(), 666667);
+            
+            const issuanceData = await this.synthex.issuanceData(charlie);
+            
+            assert.equal(issuanceData.initialDebtOwnership.toNumber(), 333333);
+            assert.equal(issuanceData.debtEntryIndex, 1);
+        });
+
+        it('issue synths twice same issuer', async function () {
+            await this.synthex.issueSynths(1000, { from: bob });
+            await this.synthex.issueSynths(500, { from: bob });
+            
+            const bobBalance = await this.susd.balanceOf(bob);            
+            assert.equal(bobBalance, 1500);
+            
+            const totalDebt = await this.synthex.totalDebt();
+            assert.equal(totalDebt, 1500);
+            
+            const debtLedger0 = await this.synthex.debtLedger(0);          
+            assert.equal(debtLedger0, UNIT);
+
+            const debtLedger1 = await this.synthex.debtLedger(1);
+            assert.equal(debtLedger1.toNumber(), 666667);
+            
+            const issuanceData = await this.synthex.issuanceData(bob);
+            
+            assert.equal(issuanceData.initialDebtOwnership.toNumber(), UNIT - 666667);
+            assert.equal(issuanceData.debtEntryIndex, 1);
         });
 
         it('burn synths', async function () {
