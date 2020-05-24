@@ -1,15 +1,18 @@
 pragma solidity >=0.5.0 <0.6.0;
 
 import './Synth.sol';
+import './IPrices.sol';
 
 contract Synthex {
     address public owner;
     ERC20 public token;
+    IPrices public prices;
 
     string public constant name = "Synthex Token";
     string public constant symbol = "SYX";
     uint8 public constant decimals = 18;
     
+    Synth[] public availableSynths;
     mapping (bytes32 => Synth) public synths;
     
     uint public totalDebt;
@@ -27,9 +30,10 @@ contract Synthex {
     
     uint public constant UNIT = 1000000;
     
-    constructor(ERC20 _token) public {
+    constructor(ERC20 _token, IPrices _prices) public {
         owner = msg.sender;
         token = _token;
+        prices = _prices;
     }
     
     modifier onlyOwner() {
@@ -43,6 +47,7 @@ contract Synthex {
         require(synths[key] == Synth(0), "Synth already exists");
         
         synths[key] = synth;
+        availableSynths.push(synth);
     }
     
     function issueSynths(uint amount) public {
@@ -68,6 +73,19 @@ contract Synthex {
     function burnSynths(uint amount) public {
         synths[sUSD].burn(msg.sender, amount);
         totalDebt -= amount;
+    }
+    
+    function totalIssuedSynthsValue() public view returns (uint) {
+        uint total;
+        
+        for (uint k = 0; k < availableSynths.length; k++) {
+            uint totalSupply = availableSynths[k].totalSupply();
+            uint price = prices.prices(availableSynths[k].key());
+            
+            total += totalSupply * price;
+        }
+        
+        return total;
     }
 }
 

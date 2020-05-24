@@ -1,8 +1,9 @@
 pragma solidity >=0.5.0 <0.6.0;
 
+import "./IPrices.sol";
 import "./Synthex.sol";
 
-contract SynthExchange {
+contract SynthExchange is IPrices {
     address public owner;
     Synthex public synthex;
     

@@ -1,6 +1,7 @@
 
 const Synthex = artifacts.require('Synthex');
 const Synth = artifacts.require('Synth');
+const SynthExchange = artifacts.require('SynthExchange');
 
 const expectThrow = require('./utils').expectThrow;
 
@@ -14,7 +15,8 @@ contract('Synthex', function (accounts) {
 
     describe('Synthex', function () {
         beforeEach(async function () {
-            this.synthex = await Synthex.new(charlie);
+            this.synthexchange = await SynthExchange.new();
+            this.synthex = await Synthex.new(charlie, this.synthexchange.address);
         });
         
         it('initial properties', async function () {
@@ -27,6 +29,12 @@ contract('Synthex', function (accounts) {
             assert.equal(token, charlie);
             assert.equal(totalDebt, 0);
             assert.equal(unit, UNIT);
+        });
+        
+        it('initial total issued synths value', async function () {
+            const value = await this.synthex.totalIssuedSynthsValue();
+            
+            assert.equal(value, 0);
         });
         
         it('unknown synth', async function () {
@@ -71,7 +79,8 @@ contract('Synthex', function (accounts) {
     
     describe('Synthex with sUSD Synth', function () {
         beforeEach(async function () {
-            this.synthex = await Synthex.new(charlie);
+            this.synthexchange = await SynthExchange.new();
+            this.synthex = await Synthex.new(charlie, this.synthexchange.address);
             this.susd = await Synth.new('sUSD', 'Synth USD', Buffer.from('sUSD'));
             await this.synthex.addSynth(this.susd.address);
             await this.susd.setSynthex(this.synthex.address);
@@ -93,6 +102,10 @@ contract('Synthex', function (accounts) {
             
             assert.equal(issuanceData.initialDebtOwnership, UNIT);
             assert.equal(issuanceData.debtEntryIndex, 0);
+            
+            const value = await this.synthex.totalIssuedSynthsValue();
+            
+            assert.equal(value, 1000 * UNIT);
         });
 
         it('issue synths twice', async function () {
@@ -116,6 +129,10 @@ contract('Synthex', function (accounts) {
             
             assert.equal(issuanceData.initialDebtOwnership.toNumber(), 333333);
             assert.equal(issuanceData.debtEntryIndex, 1);
+            
+            const value = await this.synthex.totalIssuedSynthsValue();
+            
+            assert.equal(value, 1500 * UNIT);
         });
 
         it('issue synths twice same issuer', async function () {
@@ -138,6 +155,10 @@ contract('Synthex', function (accounts) {
             
             assert.equal(issuanceData.initialDebtOwnership.toNumber(), UNIT - 666667);
             assert.equal(issuanceData.debtEntryIndex, 1);
+            
+            const value = await this.synthex.totalIssuedSynthsValue();
+            
+            assert.equal(value, 1500 * UNIT);
         });
 
         it('burn synths', async function () {
@@ -149,6 +170,10 @@ contract('Synthex', function (accounts) {
             
             const totalDebt = await this.synthex.totalDebt();
             assert.equal(totalDebt, 400);
+            
+            const value = await this.synthex.totalIssuedSynthsValue();
+            
+            assert.equal(value, 400 * UNIT);
         });
         
         it('cannot burn too much synths', async function () {
@@ -160,6 +185,10 @@ contract('Synthex', function (accounts) {
             
             const totalDebt = await this.synthex.totalDebt();
             assert.equal(totalDebt, 1000);
+            
+            const value = await this.synthex.totalIssuedSynthsValue();
+            
+            assert.equal(value, 1000 * UNIT);
         });
     });
 });

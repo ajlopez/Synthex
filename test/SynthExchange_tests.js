@@ -12,6 +12,7 @@ contract('SynthExchange', function (accounts) {
     
     const MANTISSA = 1e6;
     const INITIAL_SUPPLY = 10000000;
+    const UNIT = 1000000;
     
     describe('SynthExchange', function () {
         beforeEach(async function () {
@@ -44,7 +45,7 @@ contract('SynthExchange', function (accounts) {
     describe('SynthExchange with Synthex and Synths', function () {
         beforeEach(async function () {
             this.synthexchange = await SynthExchange.new();
-            this.synthex = await Synthex.new(charlie);
+            this.synthex = await Synthex.new(charlie, this.synthexchange.address);
             await this.synthexchange.setSynthex(this.synthex.address);
             this.susd = await Synth.new('sUSD', 'Synth USD', Buffer.from('sUSD'));
             await this.synthex.addSynth(this.susd.address);
@@ -109,6 +110,10 @@ contract('SynthExchange', function (accounts) {
             const balance3 = await this.sbtc.balanceOf(bob);
             
             assert.equal(balance3, 2);
+            
+            const value = await this.synthex.totalIssuedSynthsValue();
+            
+            assert.equal(value, 20000 * UNIT);
         });
         
         it('cannot exchange synths without prices', async function () {
@@ -175,6 +180,10 @@ contract('SynthExchange', function (accounts) {
             const balance3 = await this.sbtc.balanceOf(bob);
             
             assert.equal(balance3, 0);
+            
+            const value = await this.synthex.totalIssuedSynthsValue();
+            
+            assert.equal(value, 20000 * UNIT);
         });
     });
 });
