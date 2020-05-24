@@ -5,6 +5,7 @@ DeFi application (proof of concept) like Synthetix (WIP).
 ## References
 
 - [Synthetix Explained and Analyzed](https://fitznerblockchain.consulting/synthetix/)
+- [Synthetix Lite Paper](https://www.synthetix.io/uploads/synthetix_litepaper.pdf)
 - [Synthetix Overview](https://blog.havven.io/synthetix-overview-f4a5a6c41210)
 - [Market Protocol](https://marketprotocol.io/)
 - [Fota](https://www.fota.io/)
