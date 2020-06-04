@@ -17,11 +17,11 @@ contract Synthex {
     
     uint public totalDebt;
     
-    uint[] public debtLedger;
+    uint public debtIndex;
 
     struct IssuanceData {
         uint initialDebtOwnership;
-        uint debtEntryIndex;
+        uint debtIndex;
     }
     
     mapping(address => IssuanceData) public issuanceData;
@@ -34,6 +34,7 @@ contract Synthex {
         owner = msg.sender;
         token = _token;
         prices = _prices;
+        debtIndex = UNIT;
     }
     
     modifier onlyOwner() {
@@ -57,15 +58,13 @@ contract Synthex {
         
         uint debtPercentaje = amount * UNIT / newTotalDebt;
         
-        issuanceData[msg.sender].initialDebtOwnership = debtPercentaje;
-        issuanceData[msg.sender].debtEntryIndex = debtLedger.length;
-        
-        uint delta = UNIT - debtPercentaje;
-        
         if (totalDebt == 0)
-            debtLedger.push(UNIT);
+            debtIndex = UNIT;
         else
-            debtLedger.push(delta);
+            debtIndex = newTotalDebt * UNIT / totalDebt * debtIndex / UNIT;
+        
+        issuanceData[msg.sender].initialDebtOwnership = debtPercentaje;
+        issuanceData[msg.sender].debtIndex = debtIndex;
         
         totalDebt = newTotalDebt;
     }
