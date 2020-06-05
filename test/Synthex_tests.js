@@ -12,6 +12,7 @@ contract('Synthex', function (accounts) {
     
     const INITIAL_SUPPLY = 10000000;
     const UNIT = 1000000;
+    const MANTISSA = 1000000;
 
     describe('Synthex', function () {
         beforeEach(async function () {
@@ -22,7 +23,7 @@ contract('Synthex', function (accounts) {
         it('initial properties', async function () {
             const owner = await this.synthex.owner();
             const token = await this.synthex.token();
-            const totalDebt = await this.synthex.totalDebt();
+            const totalDebt = await this.synthex.totalIssuedSynthsValue();
             const debtIndex = await this.synthex.debtIndex();
             const unit = await this.synthex.UNIT();
             
@@ -94,9 +95,6 @@ contract('Synthex', function (accounts) {
             const balance = await this.susd.balanceOf(bob);            
             assert.equal(balance, 1000);
             
-            const totalDebt = await this.synthex.totalDebt();
-            assert.equal(totalDebt, 1000);
-            
             const debtIndex = await this.synthex.debtIndex();          
             assert.equal(debtIndex, UNIT);
             
@@ -107,7 +105,7 @@ contract('Synthex', function (accounts) {
             
             const value = await this.synthex.totalIssuedSynthsValue();
             
-            assert.equal(value, 1000 * UNIT);
+            assert.equal(value, 1000 * MANTISSA);
         });
 
         it('issue synths twice', async function () {
@@ -117,9 +115,6 @@ contract('Synthex', function (accounts) {
             const bobBalance = await this.susd.balanceOf(bob);            
             const charlieBalance = await this.susd.balanceOf(charlie);            
             assert.equal(charlieBalance, 500);
-            
-            const totalDebt = await this.synthex.totalDebt();
-            assert.equal(totalDebt, 1500);
             
             const debtIndex = await this.synthex.debtIndex();
             assert.equal(debtIndex, UNIT + UNIT / 2);
@@ -131,7 +126,7 @@ contract('Synthex', function (accounts) {
             
             const value = await this.synthex.totalIssuedSynthsValue();
             
-            assert.equal(value, 1500 * UNIT);
+            assert.equal(value, 1500 * MANTISSA);
         });
 
         it('issue synths twice same issuer', async function () {
@@ -141,10 +136,7 @@ contract('Synthex', function (accounts) {
             const bobBalance = await this.susd.balanceOf(bob);            
             assert.equal(bobBalance, 1500);
             
-            const totalDebt = await this.synthex.totalDebt();
-            assert.equal(totalDebt, 1500);
-            
-            const debtIndex = await this.synthex.debtIndex();
+            const debtIndex = (await this.synthex.debtIndex()).toNumber();
             assert.equal(debtIndex, UNIT + UNIT / 2);
 
             const issuanceData = await this.synthex.issuanceData(bob);
@@ -154,7 +146,7 @@ contract('Synthex', function (accounts) {
             
             const value = await this.synthex.totalIssuedSynthsValue();
             
-            assert.equal(value, 1500 * UNIT);
+            assert.equal(value, 1500 * MANTISSA);
         });
 
         it('burn synths', async function () {
@@ -164,12 +156,9 @@ contract('Synthex', function (accounts) {
             const balance = await this.susd.balanceOf(bob);            
             assert.equal(balance, 400);
             
-            const totalDebt = await this.synthex.totalDebt();
-            assert.equal(totalDebt, 400);
-            
             const value = await this.synthex.totalIssuedSynthsValue();
             
-            assert.equal(value, 400 * UNIT);
+            assert.equal(value, 400 * MANTISSA);
         });
         
         it('cannot burn too much synths', async function () {
@@ -179,12 +168,9 @@ contract('Synthex', function (accounts) {
             const balance = await this.susd.balanceOf(bob);            
             assert.equal(balance, 1000);
             
-            const totalDebt = await this.synthex.totalDebt();
-            assert.equal(totalDebt, 1000);
-            
             const value = await this.synthex.totalIssuedSynthsValue();
             
-            assert.equal(value, 1000 * UNIT);
+            assert.equal(value, 1000 * MANTISSA);
         });
     });
 });

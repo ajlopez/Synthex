@@ -15,8 +15,6 @@ contract Synthex {
     Synth[] public availableSynths;
     mapping (bytes32 => Synth) public synths;
     
-    uint public totalDebt;
-    
     uint public debtIndex;
 
     struct IssuanceData {
@@ -52,26 +50,26 @@ contract Synthex {
     }
     
     function issueSynths(uint amount) public {
+        uint initialTotalDebt = totalIssuedSynthsValue();
+        
         synths[sUSD].issue(msg.sender, amount);
+
+        uint increment = amount * prices.prices(sUSD);
+        uint newTotalDebt = initialTotalDebt + increment;
         
-        uint newTotalDebt = totalDebt + amount;
+        uint debtPercentaje = increment * UNIT / newTotalDebt;
         
-        uint debtPercentaje = amount * UNIT / newTotalDebt;
-        
-        if (totalDebt == 0)
+        if (initialTotalDebt == 0)
             debtIndex = UNIT;
         else
-            debtIndex = newTotalDebt * UNIT / totalDebt * debtIndex / UNIT;
+            debtIndex = newTotalDebt * debtIndex / initialTotalDebt;
         
         issuanceData[msg.sender].initialDebtOwnership = debtPercentaje;
         issuanceData[msg.sender].debtIndex = debtIndex;
-        
-        totalDebt = newTotalDebt;
     }
     
     function burnSynths(uint amount) public {
         synths[sUSD].burn(msg.sender, amount);
-        totalDebt -= amount;
     }
     
     function totalIssuedSynthsValue() public view returns (uint) {
