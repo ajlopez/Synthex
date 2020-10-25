@@ -1,22 +1,19 @@
-pragma solidity >=0.5.0 <0.6.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.6.0;
 
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 
 contract Synth is ERC20 {
     address public owner;
-    string public name;
-    string public symbol;
-    uint8 public constant decimals = 18;
     bytes32 public key;
     
     address public synthex;
     address public synthExchange;
     
-    constructor(string memory _symbol, string memory _name, bytes32 _key) public {
+    constructor(string memory _symbol, string memory _name, bytes32 _key) ERC20(_name, _symbol) public {
         owner = msg.sender;
         
-        symbol = _symbol;
-        name = _name;
         key = _key;
     }
     

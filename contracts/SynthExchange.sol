@@ -1,4 +1,6 @@
-pragma solidity >=0.5.0 <0.6.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.6.0;
 
 import "./IPrices.sol";
 import "./Synthex.sol";
@@ -7,10 +9,10 @@ contract SynthExchange is IPrices {
     address public owner;
     Synthex public synthex;
     
-    mapping (bytes32 => uint) public prices;
+    mapping (bytes32 => uint) public override prices;
     
     bytes32 private constant sUSD = "sUSD";
-    uint public constant MANTISSA = 1e6;
+    uint public override constant MANTISSA = 1e6;
 
     constructor() public {
         owner = msg.sender;
