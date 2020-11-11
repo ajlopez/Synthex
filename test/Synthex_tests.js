@@ -3,7 +3,7 @@ const Synthex = artifacts.require('Synthex');
 const Synth = artifacts.require('Synth');
 const SynthExchange = artifacts.require('SynthExchange');
 
-const expectThrow = require('./utils').expectThrow;
+const truffleAssert = require('truffle-assert');
 
 contract('Synthex', function (accounts) {
     const alice = accounts[0];
@@ -23,9 +23,9 @@ contract('Synthex', function (accounts) {
         it('initial properties', async function () {
             const owner = await this.synthex.owner();
             const token = await this.synthex.token();
-            const totalDebt = await this.synthex.totalIssuedSynthsValue();
-            const debtIndex = await this.synthex.debtIndex();
-            const unit = await this.synthex.UNIT();
+            const totalDebt = Number(await this.synthex.totalIssuedSynthsValue());
+            const debtIndex = Number(await this.synthex.debtIndex());
+            const unit = Number(await this.synthex.UNIT());
             
             assert.equal(owner, alice);
             assert.equal(token, charlie);
@@ -35,7 +35,7 @@ contract('Synthex', function (accounts) {
         });
         
         it('initial total issued synths value', async function () {
-            const value = await this.synthex.totalIssuedSynthsValue();
+            const value = Number(await this.synthex.totalIssuedSynthsValue());
             
             assert.equal(value, 0);
         });
@@ -62,7 +62,7 @@ contract('Synthex', function (accounts) {
             const synth = await Synth.new('SYM1', 'Name', Buffer.from('TOK1'));
 
             await this.synthex.addSynth(synth.address);
-            expectThrow(this.synthex.addSynth(synth.address));
+            await truffleAssert.reverts(this.synthex.addSynth(synth.address));
             
             const result = await this.synthex.synths(await synth.key());
             
@@ -72,7 +72,7 @@ contract('Synthex', function (accounts) {
         it('only owner can add synth', async function () {
             const synth = await Synth.new('SYM1', 'Name', Buffer.from('TOK1'));
 
-            expectThrow(this.synthex.addSynth(synth.address, { from: bob }));
+            await truffleAssert.reverts(this.synthex.addSynth(synth.address, { from: bob }));
             
             const result = await this.synthex.synths(await synth.key());
             
@@ -163,7 +163,7 @@ contract('Synthex', function (accounts) {
         
         it('cannot burn too much synths', async function () {
             await this.synthex.issueSynths(1000, { from: bob });
-            expectThrow(this.synthex.burnSynths(1600, { from: bob }));
+            await truffleAssert.reverts(this.synthex.burnSynths(1600, { from: bob }));
             
             const balance = await this.susd.balanceOf(bob);            
             assert.equal(balance, 1000);

@@ -11,5 +11,8 @@
   "license": "MIT",
   "dependencies": {
     "@openzeppelin/contracts": "3.2.0"
+  },
+  "devDependencies": {
+    "truffle-assert": "^0.9.1"
   }
 }
